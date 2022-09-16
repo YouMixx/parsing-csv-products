@@ -34,13 +34,15 @@ class ImportHandler extends Command
 
         $start = microtime(true);
         
+        // Парсим с помощью библиотеки CSV таблицу
         $filename = storage_path('app/public/' . $this->argument('filename'));
         $data = new \SpreadsheetReader($filename);
-        $insert_data = new Collection();
 
+        $insert_data = new Collection(); // Создаем коллекцию для данных
         foreach ($data as $key => $attr) {
-            if($key == 0) continue;
+            if($key == 0) continue; // Пропускаем первую строку с заголовками
 
+            // Пушим в коллекцию данные в нужном формате
             $insert_data->push([
                 'product_id' => $attr[0],
                 'product_code' => $attr[1],
@@ -59,6 +61,7 @@ class ImportHandler extends Command
             ]);
 
             if(is_int($key / $chunk)) {
+                // Как только $chunk записей в коллекции, вставляем в БД и очищаем переменную.
                 Product::upsert($insert_data->toArray(), ['product_id']);
                 $insert_data = new Collection();
                 $this->info("Вставили в БД $key записей");

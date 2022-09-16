@@ -18,4 +18,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/getProduct/{product_id}', [ImportController::class, 'getProduct']);
+Route::get('/getProduct/{product_id}', [HandlerController::class, 'getProduct']);
