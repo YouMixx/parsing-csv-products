@@ -18,5 +18,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/import', [ImportController::class, 'index']);
 Route::get('/getProduct/{product_id}', [ImportController::class, 'getProduct']);

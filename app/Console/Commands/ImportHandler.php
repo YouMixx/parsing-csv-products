@@ -14,7 +14,7 @@ class ImportHandler extends Command
      *
      * @var string
      */
-    protected $signature = 'import:handler {filename}';
+    protected $signature = 'import:handler {filename} {chunk=1000}';
 
     /**
      * The console command description.
@@ -30,22 +30,16 @@ class ImportHandler extends Command
      */
     public function handle()
     {
+        if($this->argument('chunk')) $chunk = $this->argument('chunk');
+
         $start = microtime(true);
-        // $data = \Storage::get('public/demo-data-small.csv');
-
-        $filename = storage_path('app/public/demo-data-small.csv');
         
+        $filename = storage_path('app/public/' . $this->argument('filename'));
         $data = new \SpreadsheetReader($filename);
-
         $insert_data = new Collection();
 
         foreach ($data as $key => $attr) {
             if($key == 0) continue;
-
-            // $features = array_reduce(explode('; ', $attr[13]), function($carry, $item) {
-            //     $carry[explode(": ", $item)[0]] = explode(": ", $item)[1];
-            //     return $carry;
-            // });
 
             $insert_data->push([
                 'product_id' => $attr[0],
@@ -63,27 +57,21 @@ class ImportHandler extends Command
                 'vendor' => $attr[12],
                 'features' => $attr[13],
             ]);
+
+            if(is_int($key / $chunk)) {
+                Product::upsert($insert_data->toArray(), ['product_id']);
+                $insert_data = new Collection();
+                $this->info("Вставили в БД $key записей");
+            }
         }
 
-        $this->info('Собрали коллекцию');
-        $end = microtime(true) - $start;
-        $this->error('Time: ' . $end);
-
-        /*
-        * По сути, можно не плохо ускорить мой код если вместо 1к записей в чанке брать больше.
-        * Нормальный ПК должен спокойно потянуть думаю до 5к записей, что в разы ускорит процесс.
-        * Но т.к. тут ПК очень слабый, я никак не могу это проверить.
-
-        * Почти все время занимает именно код ниже
-        */
-
-        $chunks = $insert_data->chunk(1000);
+        // $chunks = $insert_data->chunk(1000);
         // Product::upsert($content, ['product_id']);
-        foreach ($chunks as $key => $chunk) {
-            Product::upsert($chunk->toArray(), ['product_id']);
-            // Product::insert($chunk->toArray());
-            $this->info('Вставили в БД 1.000 записей');
-        }
+        // foreach ($chunks as $key => $chunk) {
+        //     Product::upsert($chunk->toArray(), ['product_id']);
+        //     // Product::insert($chunk->toArray());
+        //     $this->info('Вставили в БД 1.000 записей');
+        // }
 
         $end = microtime(true) - $start;
         $this->error('Time: ' . $end);
