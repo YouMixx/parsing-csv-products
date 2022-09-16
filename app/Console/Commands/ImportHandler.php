@@ -61,12 +61,15 @@ class ImportHandler extends Command
             ]);
 
             if(is_int($key / $chunk)) {
-                // Как только $chunk записей в коллекции, вставляем в БД и очищаем переменную.
+                // Как только $chunk записей наберется в коллекции, вставляем их в БД и очищаем переменную.
                 Product::upsert($insert_data->toArray(), ['product_id']);
                 $insert_data = new Collection();
                 $this->info("Вставили в БД $key записей");
             }
         }
+
+        // Вставляем все что осталось
+        Product::upsert($insert_data->toArray(), ['product_id']);
 
         // $chunks = $insert_data->chunk(1000);
         // Product::upsert($content, ['product_id']);

@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use App\Models\Product;
 
-class ImportController extends Controller
+
+class HandlerController extends Controller
 {
     public function getProduct($productId)
     {
