@@ -32,7 +32,7 @@ class HandlerController extends Controller
         
         if(!$product) return 'Not found';
 
-        // Приводим поле `features` к ввиду как в ТЗ
+        // Приводим поле `features` к ввиду как в ТЗ (массив ключ - значение)
         if($product['features']) {
             $product['features'] = array_reduce(explode('; ', $product['features']), function($carry, $item) {
                 $carry[explode(": ", $item)[0]] = explode(": ", $item)[1];

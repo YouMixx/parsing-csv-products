@@ -71,14 +71,6 @@ class ImportHandler extends Command
         // Вставляем все что осталось
         Product::upsert($insert_data->toArray(), ['product_id']);
 
-        // $chunks = $insert_data->chunk(1000);
-        // Product::upsert($content, ['product_id']);
-        // foreach ($chunks as $key => $chunk) {
-        //     Product::upsert($chunk->toArray(), ['product_id']);
-        //     // Product::insert($chunk->toArray());
-        //     $this->info('Вставили в БД 1.000 записей');
-        // }
-
         $end = microtime(true) - $start;
         $this->error('Time: ' . $end);
 
